@@ -13,26 +13,28 @@ class ElkomCrawlerSpider(CrawlSpider):
 
     rules = (
         Rule(
-            LinkExtractor(restrict_xpaths=r"//div[@class='catalog_section_list row items flexbox']/div//td[@class='image']/a"), # catalog
+            LinkExtractor(restrict_xpaths=r"//div[@class='catalog_section_list row items flexbox']/div//td[@class='image']/a",
+                          #deny=[r"kabelno-provodnikovaya-produktsiya/",
+                                #r"svetotekhnika/"]
+                                ), # catalog
             follow=True),
         Rule(
-            LinkExtractor(restrict_xpaths=r"//div[@class='right_block1 clearfix catalog vertical']//ul[@class='flex-direction-nav']/li[@class='flex-nav-next ']/a"), # next page
+            LinkExtractor(restrict_xpaths=r"//div[@class='right_block1 clearfix catalog compact']//ul[@class='flex-direction-nav']/li[@class='flex-nav-next ']/a"), # next page
             follow=True),
         Rule(
             LinkExtractor(restrict_xpaths=r"//div[@class='right_block1 clearfix catalog compact']//td[@class='item-name-cell item_info']/div[@class='title']/a"), # item page 
             callback='parse_item', 
             follow=True),
+        Rule(
+            LinkExtractor(restrict_xpaths=r"//div[@class='catalog_block items block_list']//div[@class='catalog_item_wrapp item']//div[@class='item-title']/a"), # item page 
+            callback='parse_item', 
+            follow=True),
     )
 
     def parse_item(self, response):
-        # classes
-        classes = []
-        # tags
-        tags = []
-
         # data
         product_item = ProductItem()
-        product_item['title'] = response.xpath("//h1[@id='pagetitle']/@text()").get()
+        product_item['title'] = response.xpath("//h1[@id='pagetitle']/text()").get()
         product_item['price'] = response.xpath("//div[@class='prices_block']//span[@class='price_value']/text()").get()
         product_item['url'] = response.url
 
@@ -50,8 +52,8 @@ class ElkomCrawlerSpider(CrawlSpider):
         # yield loader.load_item()
 
         # product_item['image_name'] = loader.item['image_name']
-        product_item['image_name'] = ''
-        product_item['article'] = ''
-        product_item['brand'] = ''
+        # product_item['image_name'] = ''
+        # product_item['article'] = ''
+        # product_item['brand'] = ''
 
         yield product_item
