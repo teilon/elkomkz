@@ -1,7 +1,10 @@
+from datetime import datetime
+
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.loader import ItemLoader
+from itemadapter import ItemAdapter
 
 from elkom.items import ProductItem, ImageItem
 
@@ -14,8 +17,17 @@ class ElkomCrawlerSpider(CrawlSpider):
     rules = (
         Rule(
             LinkExtractor(restrict_xpaths=r"//div[@class='catalog_section_list row items flexbox']/div//td[@class='image']/a",
-                          #deny=[r"kabelno-provodnikovaya-produktsiya/",
-                                #r"svetotekhnika/"]
+                          deny=[
+                                #r"kabelno-provodnikovaya-produktsiya/",
+                                #r"svetotekhnika/",
+                                #r"ustanovochnye-pribory/",
+                                #r"elektrooborudovanie/",
+                                #r"shkafy-shchity-boksy-i-aksessuary/",
+                                #r"vspomogatelnye-materialy/",
+                                #r"sezonnyy-tovar/",
+                                #r"raznoe-12871/",
+                                r"-rasprodazha/"
+                                ]
                                 ), # catalog
             follow=True),
         Rule(
@@ -38,20 +50,20 @@ class ElkomCrawlerSpider(CrawlSpider):
         product_item['price'] = response.xpath("//div[@class='prices_block']//span[@class='price_value']/text()").get()
         product_item['url'] = response.url
 
-        # # image
-        # image_link = response.xpaths("//div[@class='item_slider has_one']//li[@id='photo-0']/link")
-        # loader = ItemLoader(item=ImageItem(), selector=image_link)
+        # image
+        image_link = response.xpath("//div[@class='item_slider has_one' or @class='item_slider has_more']//li[@id='photo-0']/link")
+        loader = ItemLoader(item=ImageItem(), selector=image_link)
 
-        # relative_url = image_link.xpath(".//@href").extract_first()
-        # absolute_url = response.urljoin(relative_url)
-        # loader.add_value('image_urls', absolute_url)
+        relative_url = image_link.xpath(".//@href").extract_first()
+        absolute_url = response.urljoin(relative_url)
+        loader.add_value('image_urls', absolute_url)
 
-        # name = datetime.now().strftime("%H%M%S%f")
-        # loader.add_value('image_name', name)
+        name = datetime.now().strftime("%H%M%S%f")
+        loader.add_value('image_name', name)
 
-        # yield loader.load_item()
+        yield loader.load_item()
 
-        # product_item['image_name'] = loader.item['image_name']
+        product_item['image_name'] = loader.item['image_name']
         # product_item['image_name'] = ''
         # product_item['article'] = ''
         # product_item['brand'] = ''

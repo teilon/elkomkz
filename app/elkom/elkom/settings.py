@@ -62,9 +62,12 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'elkom.pipelines.ElkomPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'elkom.pipelines.SQLlitePipeline': 300,
+    'elkom.pipelines.ElkomImagePipeline': 1,
+}
+IMAGES_STORE = './img'
+DOWNLOAD_TIMEOUT = 1200
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
