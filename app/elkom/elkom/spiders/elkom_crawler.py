@@ -62,10 +62,28 @@ class ElkomCrawlerSpider(CrawlSpider):
         loader.add_value('image_name', name)
 
         yield loader.load_item()
-
         product_item['image_name'] = loader.item['image_name']
-        # product_item['image_name'] = ''
-        # product_item['article'] = ''
-        # product_item['brand'] = ''
+
+        # article
+        article = response.xpath("//div[@class='right_info']//div[@class='article iblock']")
+        if article:
+            product_item['article'] = article.xpath(".//span[@class='value']/text()").get()
+        # brand
+        brand = response.xpath("//div[@class='right_info']//div[@class='brand']")
+        if article:
+            product_item['brand'] = article.xpath(".//meta/@content").get()
+        
+        # categories
+        categories = []
+        breadcrumbs = response.xpath("//div[@class='breadcrumbs']/div[@itemprop='itemListElement']")        
+        for category in breadcrumbs[2:]:
+            category_data = {
+                'category_name': category.xpath(".//a/span[@itemprop='name']/text()").get(), 
+                'category_level': category.xpath(".//a/meta[@itemprop='position']/@content").get()
+                }
+            categories.append(category_data)
+        
+        product_item['categories'] = categories
+
 
         yield product_item

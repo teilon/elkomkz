@@ -15,6 +15,7 @@ class ProductItem(Item):
     # meta
     article = Field()
     brand = Field()
+    categories = Field()
 
 # class CategoryItem(scrapy.Item):
 #     name = scrapy.Field()
